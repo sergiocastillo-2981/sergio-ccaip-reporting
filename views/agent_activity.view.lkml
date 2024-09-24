@@ -213,11 +213,9 @@ view: agent_activity
     value_format_name: HMS
   }
 
-  dimension: avail_time_dinamic
+  dimension: avail_time_dynamic
   {
-    #{% if time_format._parameter_value == 'hms' %}
     description: "Time Spent on the status Available Format depends on parameter time_format"
-    #label: "{% if time_format._parameter_value == 'hms' %} Available Time HH:MM:SS {% else %} Available Time Seconds {% endif %}"
 
     sql:
         {% if time_format._parameter_value == 'hms' %}
@@ -226,10 +224,6 @@ view: agent_activity
           ${available_time_ss}
         {% endif %}
       ;;
-
-    #value_format: {% if time_format._parameter_value == 'hms' %} HH:MM:SS  {% endif %}
-    #value_format: "deci"
-
   }
 
   dimension: break_time_hrs
