@@ -22,7 +22,7 @@ view: agent_activity
     ;;
   }
 
-
+ ###-------------------------DIMENSIONS-----------------------------##
 
 
   dimension: id
@@ -45,6 +45,7 @@ view: agent_activity
     sql: ${TABLE}.instance_name ;;
   }
 
+
   dimension: agent_id
   {
     type: number
@@ -65,7 +66,7 @@ view: agent_activity
     link: {
       label: "Queue Transactional Detail"
       #url: "https://ttec.cloud.looker.com/dashboards/171?Agent+ID={{ v_agent_activity_logs.agent_id._value }}"
-      url: "https://ttec.cloud.looker.com/dashboards/sergio_ccaip_reporting::queue_transactional_report?Call%20ID={{ agent_activity.call_id._value }}"
+      url: "https://ttec.cloud.looker.com/dashboards/@{CCAIP_MODEL}::queue_transactional_report?Call%20ID={{ agent_activity.call_id._value }}"
     }
 
 
@@ -210,6 +211,25 @@ view: agent_activity
     type: number
     sql: CASE WHEN ${status} = 'Available' THEN ${duration_hms} ELSE 0 END  ;;
     value_format_name: HMS
+  }
+
+  dimension: avail_time_dinamic
+  {
+    #{% if time_format._parameter_value == 'hms' %}
+    description: "Time Spent on the status Available Format depends on parameter time_format"
+    #label: "{% if time_format._parameter_value == 'hms' %} Available Time HH:MM:SS {% else %} Available Time Seconds {% endif %}"
+
+    sql:
+        {% if time_format._parameter_value == 'hms' %}
+          time(timestamp_seconds(${available_time_ss}))
+        {% elsif time_format._parameter_value == 'ss' %}
+          ${available_time_ss}
+        {% endif %}
+      ;;
+
+    #value_format: {% if time_format._parameter_value == 'hms' %} HH:MM:SS  {% endif %}
+    #value_format: "deci"
+
   }
 
   dimension: break_time_hrs
@@ -360,6 +380,7 @@ view: agent_activity
     #value_format: "##.##"
   }
 
+  ##---------------------------------------------DRILL DOWN-------------------------##
 
   # ----- Sets of fields for drilling ------
   set: detail
@@ -371,6 +392,20 @@ view: agent_activity
       brand_name,
       status
     ]
+  }
+
+  ##--------------------------------PARAMS ------------------##
+  parameter: time_format {
+    type: unquoted
+    allowed_value: {
+      label: "HH:MM:SS"
+      value: "hms"
+    }
+
+    allowed_value: {
+      label: "Seconds"
+      value: "ss"
+    }
   }
 
 }
