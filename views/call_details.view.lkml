@@ -332,7 +332,7 @@ view: call_details
 
   measure: total_queue_time_ss
   {
-    description: "Total Time calls spent on the queue (in hh:mm:ss)"
+    description: "Total Time calls spent on the queue (in seconds)"
     group_label: "Totals"
     type: sum
     sql: ${queue_duration_ss} ;;
