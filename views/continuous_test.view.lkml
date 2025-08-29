@@ -1,6 +1,6 @@
 view: continuous_test {
   # # You can specify the table name if it's different from the view name:
-   sql_table_name: sergio_ccaip_reporting.continuous-test ;;
+   sql_table_name: `sergio_ccaip_reporting.continuous-test` ;;
   #
   # # Define your dimensions and measures here, like this:
    dimension: item_count {
