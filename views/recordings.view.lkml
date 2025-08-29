@@ -7,6 +7,43 @@
 
        ;;
    }
+
+  dimension: id
+  {
+    sql: ${TABLE}.id ;;
+    primary_key: yes
+  }
+
+  dimension: recording_link
+  {
+    sql: ${TABLE}.link ;;
+  }
+
+  dimension: recording_audio
+  {
+    #Recording Stored on the GCP Bucket, the recording must be on the same connection as the looker connection
+    sql:  ${TABLE}.link;;
+    #Link to the Recording
+    #html: <a href="{{value}}" target="_blank"><img src="https://icon-library.com/images/icon-sound/icon-sound-1.jpg" alt="Recording Link" style="width:32px;height:32px";></a> ;;
+
+    #Embeded Recording
+    html:
+        <audio controls controlsList="nodownload">
+        <source src="{{value}}"  type="audio/mpeg">
+        </audio>
+      ;;
+  }
+
+  dimension: recording_test
+  {
+    sql: ${TABLE}.link ;;
+    html:
+      <iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url={{value}};">
+      </iframe>
+      ;;
+
+  }
+
 #
 #   # Define your dimensions and measures here, like this:
 #   dimension: user_id {

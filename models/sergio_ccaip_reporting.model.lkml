@@ -18,6 +18,10 @@ datagroup: ccaip_reporting_default_datagroup {
 
 persist_with: ccaip_reporting_default_datagroup
 
+explore: recordings {}
+
+explore: continuous_test {}
+
 explore: contacts
 {
   label: "Contacts"
