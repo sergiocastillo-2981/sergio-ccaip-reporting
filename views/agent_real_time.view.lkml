@@ -3,11 +3,12 @@ view: agent_real_time {
   sql_table_name: `sergio_ccaip_reporting.t_agents_rt` ;;
   #
   # # Define your dimensions and measures here, like this:
-  # dimension: user_id {
-  #   description: "Unique ID for each user that has ordered"
-  #   type: number
-  #   sql: ${TABLE}.user_id ;;
-  # }
+  dimension: InstanceName
+  {
+     description: "Instance where the metrics belong to"
+     type: string
+     sql: ${TABLE}.instance_name ;;
+  }
   #
   # dimension: lifetime_orders {
   #   description: "The total number of orders for each user"
