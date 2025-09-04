@@ -22,6 +22,14 @@ explore: recordings {}
 
 explore: continuous_test {}
 
+explore: agents_real_time {
+  label: "Agents Real Time"
+}
+
+explore: queues_real_time {
+  label: "Queues Real Time"
+}
+
 explore: contacts
 {
   label: "Contacts"
