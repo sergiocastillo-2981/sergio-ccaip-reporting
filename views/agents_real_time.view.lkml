@@ -25,6 +25,13 @@ view: agents_real_time {
     type: number
     sql: ${TABLE}.DurationInCurrentState ;;
   }
+
+  dimension: duration_in_current_state_hms {
+    type: number
+    sql:  ${duration_in_current_state}/86400.0;;
+    value_format: "HH:MM:SS"
+  }
+
   dimension: instance_name {
     type: string
     sql: ${TABLE}.instance_name ;;
