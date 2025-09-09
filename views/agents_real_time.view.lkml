@@ -107,10 +107,11 @@ view: agents_real_time {
     type: string
     sql:
       CASE
-        WHEN ${online} = true THEN
-          CASE
-            WHEN ${status} in ("In-Call(Other)","Talking In","Talking Out") THEN 'In Call'
-            ELSE 'Other'
+        WHEN ${online} = true THEN ${status}
+
+          --CASE
+          --  WHEN ${status} in ("In-Call(Other)","Talking In","Talking Out") THEN 'In Call'
+          --  ELSE 'Other'
           END
         ELSE NULL
       END ;;
