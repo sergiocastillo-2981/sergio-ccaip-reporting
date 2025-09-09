@@ -67,130 +67,127 @@ view: agents_real_time {
 
   #-------------------------------CUSTOM-----------------------------------#
 
-    # --- Dimensions (hierarchy) ---
-    #dimension: queue_id   { type: string; primary_key: yes; sql: ${TABLE}.queue_id ;; }
-    #dimension: agent_id   { type: string; sql: ${TABLE}.agent_id ;; }
+  # --- Dimensions (hierarchy) ---
+  #dimension: queue_id   { type: string; primary_key: yes; sql: ${TABLE}.queue_id ;; }
+  #dimension: agent_id   { type: string; sql: ${TABLE}.agent_id ;; }
 
-    # Level 1: online/offline
-    dimension: status_l1
-    {
-      type: string
-      sql:
+  # Level 1: online/offline
+  dimension: status_l1
+  {
+    type: string
+    sql:
       CASE
         WHEN ${online} = false THEN 'Offline'
         WHEN ${online} = true THEN 'Online'
         ELSE 'Unknown'
       END ;;
-    }
+  }
 
-    # Level 2: availability (only relevant when Online)
-    dimension: status_l2
-    {
-      type: string
-      sql:
+  # Level 2: availability (only relevant when Online)
+  dimension: status_l2
+  {
+    type: string
+    sql:
       CASE
         WHEN ${online} = true THEN
           CASE
             WHEN ${status} = 'Available'  THEN 'Available'
             WHEN ${status} in ('Wrap-Up',"In-Call","Wrapup Exceeded","In Chat") THEN 'Busy'
-            WHEN ${status} in ('Unavailable','Break',"Meal","Missed Call","Unresponsive") THEN 'Unavailable'
+            WHEN ${status} in ('Unavailable','Break',"Meal","Missed Call","Unresponsive") THEN 'Unavailable'--Need to add more statuses here
             WHEN ${status} = 'Offline'    THEN 'Offline'   -- keep exclusive buckets if you pivot this level
             ELSE 'Unknown'
           END
         ELSE NULL
       END;;
-    }
+  }
 
-    # Level 3: unavailable reason (only when Unavailable)
-    dimension: status_l3
-    {
-      type: string
-      sql:
+  # Level 3:
+  dimension: status_l3
+  {
+    type: string
+    sql:
       CASE
         WHEN ${online} = true THEN
-          CASE ${status}
-            WHEN 'Break' THEN 'Break'
-            WHEN 'Meal' THEN 'Meal'
-            WHEN 'Unresponsive' THEN 'Unresponsive'
-            WHEN 'Meeting' THEN 'Meeting'
+          CASE
+            WHEN ${status} in ("In-Call(Other)","Talking In","Talking Out") THEN 'In Call'
             ELSE 'Other'
           END
         ELSE NULL
       END ;;
-    }
+  }
 
 
-    # --- Base "row" for symmetric aggregates ---
-    dimension: row_one
-    {
-      type: number
-      sql: 1 ;;
-    }
+  # --- Base "row" for symmetric aggregates ---
+  dimension: row_one
+  {
+    type: number
+    sql: 1 ;;
+  }
 
-    # --- Measures (use SUM(CASE...) so they roll up perfectly) ---
-    measure: agents_total
-    {
-      type: number
-      sql: SUM(${row_one}) ;;
-      drill_fields: [agent_id, status_l1, status_l2, status_l3]
-    }
+  # --- Measures (use SUM(CASE...) so they roll up perfectly) ---
+  measure: agents_total
+  {
+    type: number
+    sql: SUM(${row_one}) ;;
+    drill_fields: [agent_id, status_l1, status_l2, status_l3]
+  }
 
-    # Level 1
-    measure: agents_offline
-    {
-      type: number
-      sql: SUM(CASE WHEN ${status_l1} = 'Offline' THEN 1 ELSE 0 END) ;;
-    }
-    measure: agents_online
-    {
-      type: number
-      sql: SUM(CASE WHEN ${status_l1} = 'Online' THEN 1 ELSE 0 END) ;;
-    }
+  # Level 1
+  measure: agents_offline
+  {
+    type: number
+    sql: SUM(CASE WHEN ${status_l1} = 'Offline' THEN 1 ELSE 0 END) ;;
+  }
+  measure: agents_online
+  {
+    type: number
+    sql: SUM(CASE WHEN ${status_l1} = 'Online' THEN 1 ELSE 0 END) ;;
+  }
 
-    # Level 2 (children of Online)
-    measure: agents_available
-    {
-      type: number
-      sql: SUM(CASE WHEN ${status_l2} = 'Available' THEN 1 ELSE 0 END) ;;
-    }
-    measure: agents_busy
-    {
-      type: number
-      sql: SUM(CASE WHEN ${status_l2} = 'Busy' THEN 1 ELSE 0 END) ;;
-    }
-    measure: agents_unavailable
-    {
-      type: number
-      sql: SUM(CASE WHEN ${status_l2} = 'Unavailable' THEN 1 ELSE 0 END) ;;
-    }
+  # Level 2 (children of Online)
+  measure: agents_available
+  {
+    type: number
+    sql: SUM(CASE WHEN ${status_l2} = 'Available' THEN 1 ELSE 0 END) ;;
+  }
+  measure: agents_busy
+  {
+    type: number
+    sql: SUM(CASE WHEN ${status_l2} = 'Busy' THEN 1 ELSE 0 END) ;;
+  }
+  measure: agents_unavailable
+  {
+    type: number
+    sql: SUM(CASE WHEN ${status_l2} = 'Unavailable' THEN 1 ELSE 0 END) ;;
+  }
 
-    # Level 3 (children of Unavailable)
-    measure: agents_break
-    {
-      type: number
-      sql: SUM(CASE WHEN ${status_l3} = 'Break' THEN 1 ELSE 0 END) ;;
-    }
-    measure: agents_meal
-    {
-      type: number
-      sql: SUM(CASE WHEN ${status_l3} = 'Meal' THEN 1 ELSE 0 END) ;;
-    }
+  # Level 3 (children of Unavailable)
+  measure: agents_break
+  {
+    type: number
+    sql: SUM(CASE WHEN ${status_l3} = 'Break' THEN 1 ELSE 0 END) ;;
+  }
+  measure: agents_meal
+  {
+    type: number
+    sql: SUM(CASE WHEN ${status_l3} = 'Meal' THEN 1 ELSE 0 END) ;;
+  }
 
-    measure: agents_unresponsive
-    {
-      type: number
-      sql: SUM(CASE WHEN ${status_l3} = 'Unresponsive' THEN 1 ELSE 0 END) ;;
-    }
-    measure: agents_meeting
-    {
-      type: number
-      sql: SUM(CASE WHEN ${status_l3} = 'Meeting' THEN 1 ELSE 0 END) ;;
-    }
-    measure: agents_unavailable_other
-    {
-      type: number
-      sql: SUM(CASE WHEN ${status_l3} = 'Other' THEN 1 ELSE 0 END) ;;
-    }
+  measure: agents_unresponsive
+  {
+    type: number
+    sql: SUM(CASE WHEN ${status_l3} = 'Unresponsive' THEN 1 ELSE 0 END) ;;
+  }
+  measure: agents_meeting
+  {
+    type: number
+    sql: SUM(CASE WHEN ${status_l3} = 'Meeting' THEN 1 ELSE 0 END) ;;
+  }
+  measure: agents_unavailable_other
+  {
+    type: number
+    sql: SUM(CASE WHEN ${status_l3} = 'Other' THEN 1 ELSE 0 END) ;;
+  }
 
 
 
