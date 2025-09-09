@@ -131,7 +131,7 @@ view: agents_real_time {
   {
     type: number
     sql: SUM(${row_one}) ;;
-    drill_fields: [agent_id, status_l1, status_l2, status_l3]
+    drill_fields: [agent_id, agent_name,status_l1, status_l2, status_l3]
   }
 
   # Level 1
@@ -144,6 +144,7 @@ view: agents_real_time {
   {
     type: number
     sql: SUM(CASE WHEN ${status_l1} = 'Online' THEN 1 ELSE 0 END) ;;
+    drill_fields: [agent_id, agent_name, status_l2, status_l3]
   }
 
   # Level 2 (children of Online)
