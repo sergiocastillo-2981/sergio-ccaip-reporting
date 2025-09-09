@@ -105,16 +105,17 @@ view: agents_real_time {
   dimension: status_l3
   {
     type: string
+    #sql:
+    #  CASE
+    #    WHEN ${online} = true THEN
+    #      CASE
+    #        WHEN ${status} in ("In-Call(Other)","Talking In","Talking Out") THEN 'In Call'
+    #        ELSE 'Other'
+    #      END
+    #    ELSE NULL
+    #  END ;;
     sql:
-      CASE
-        WHEN ${online} = true THEN ${status}
-
-          --CASE
-          --  WHEN ${status} in ("In-Call(Other)","Talking In","Talking Out") THEN 'In Call'
-          --  ELSE 'Other'
-          END
-        ELSE NULL
-      END ;;
+      CASE WHEN ${online} = true THEN ${status} ELSE NULL END ;;
   }
 
 
